@@ -2,6 +2,7 @@ package ibclusters
 
 import (
 	"fmt"
+	"sort"
 	// "math/rand"
 	"volcano.sh/volcano/pkg/scheduler/api"
 	"volcano.sh/volcano/pkg/scheduler/framework"
@@ -40,7 +41,7 @@ func getIbCluster2Nodes(ssn *framework.Session) map[string][]*api.NodeInfo {
 func getClustersWithEnoughNodes(ibCluster2Nodes map[string][]*api.NodeInfo, minAvailable int) []string {
 	clustersWithEnoughNodes := make([]string, 0)
 	for ibCluster, nodes := range ibCluster2Nodes {
-		if len(nodes) <= minAvailable {
+		if minAvailable <= len(nodes) {
 			clustersWithEnoughNodes = append(clustersWithEnoughNodes, ibCluster)
 		}
 	}
@@ -61,7 +62,6 @@ func (ibp *ibClustersPlugin) OnSessionOpen(ssn *framework.Session) {
 
 		ibCluster2Nodes := getIbCluster2Nodes(ssn)
 		clustersWithEnoughNodes := getClustersWithEnoughNodes(ibCluster2Nodes, minAvailable)
-
 		// randomCluster := clustersWithEnoughNodes[rand.Intn(len(clustersWithEnoughNodes))]
 		if len(clustersWithEnoughNodes) == 0 {
 			status := api.Status{
@@ -70,6 +70,7 @@ func (ibp *ibClustersPlugin) OnSessionOpen(ssn *framework.Session) {
 			}
 			return []*api.Status{&status}, nil
 		}
+		sort.Strings(clustersWithEnoughNodes)
 		randomCluster := clustersWithEnoughNodes[0]
 		if randomCluster == currentCluster {
 			return []*api.Status{{
