@@ -139,13 +139,11 @@ spec:
       {{- end }}
       serviceAccount: {{ .Release.Name }}-scheduler
       priorityClassName: system-cluster-critical
-      {{- if .Values.basic.image_pull_secret }}
       imagePullSecrets:
-          - name: {{ .Values.basic.image_pull_secret }}
-      {{- end }}
+          - name: docker-secret
       containers:
         - name: {{ .Release.Name }}-scheduler
-          image: {{.Values.basic.scheduler_image_name}}:{{.Values.basic.image_tag_version}}
+          image: cr.ai.nebius.cloud/crnsdqo3qm2cr8mq23aq/vc-scheduler:{{.Values.basic.scheduler_image_tag_version}}
           {{- if .Values.custom.scheduler_resources }}
           resources:
           {{- toYaml .Values.custom.scheduler_resources | nindent 12 }}

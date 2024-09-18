@@ -98,6 +98,9 @@ images:
 		docker buildx build -t "${IMAGE_PREFIX}/vc-$$name:$(TAG)" . -f ./installer/dockerfile/$$name/Dockerfile --output=type=${BUILDX_OUTPUT_TYPE} --platform ${DOCKER_PLATFORMS} --build-arg APK_MIRROR=${APK_MIRROR}; \
 	done
 
+image_vc_scheduler:
+	docker buildx build -t "cr.nemax.nebius.cloud/crnsdqo3qm2cr8mq23aq/vc-scheduler:$(TAG)" . -f ./installer/dockerfile/scheduler/Dockerfile --output=type=${BUILDX_OUTPUT_TYPE} --platform ${DOCKER_PLATFORMS} --build-arg APK_MIRROR=${APK_MIRROR}
+
 generate-code:
 	./hack/update-gencode.sh
 

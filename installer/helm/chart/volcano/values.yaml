@@ -9,6 +9,8 @@ basic:
   image_pull_policy: "Always"
   image_tag_version: "v1.9.0"
   admission_port: 8443
+  image_registry: "docker.io"
+  scheduler_image_tag_version: cf1a187b1716e7bebb7173ea157887edce538896
 custom:
   metrics_enable: false
   admission_enable: true
