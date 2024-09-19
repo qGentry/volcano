@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"hash/fnv"
 	"sort"
-
-	// "math/rand"
 	"volcano.sh/volcano/pkg/scheduler/api"
 	"volcano.sh/volcano/pkg/scheduler/framework"
 )
