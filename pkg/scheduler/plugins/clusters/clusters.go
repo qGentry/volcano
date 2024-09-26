@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"hash/fnv"
 	"sort"
+	"strings"
+
 	"volcano.sh/volcano/pkg/scheduler/api"
 	"volcano.sh/volcano/pkg/scheduler/framework"
 )
@@ -11,19 +13,33 @@ import (
 const (
 	PluginName      = "clusters"
 	clusterLabelKey = "volcano.sh/cluster-name"
+	clusterQueueNames = "queueNames"
 )
 
-type ClustersPlugin struct {
+type clustersPlugin struct {
 	pluginArguments framework.Arguments
+	queueNames map[string]bool
 }
 
-func (ibp *ClustersPlugin) Name() string {
+func (cp *clustersPlugin) Name() string {
 	return PluginName
+}
+
+func (cp *clustersPlugin) parseArguments() {
+	cp.queueNames = make(map[string]bool, 0)
+	queueNames, ok := cp.pluginArguments[clusterQueueNames]
+	if ok {
+		queueNames := queueNames.([]interface{})
+		for _, queueName := range queueNames {
+			queueName := queueName.(string)
+			cp.queueNames[strings.TrimSpace(queueName)] = true
+		}
+	}
 }
 
 // New return gang plugin
 func New(arguments framework.Arguments) framework.Plugin {
-	return &ClustersPlugin{pluginArguments: arguments}
+	return &clustersPlugin{pluginArguments: arguments, queueNames: make(map[string]bool)}
 }
 
 func getCluster2Nodes(ssn *framework.Session) map[string][]*api.NodeInfo {
@@ -48,10 +64,18 @@ func getClustersWithEnoughNodes(cluster2Nodes map[string][]*api.NodeInfo, minAva
 	return clustersWithEnoughNodes
 }
 
-func (cp *ClustersPlugin) OnSessionOpen(ssn *framework.Session) {
+func (cp *clustersPlugin) OnSessionOpen(ssn *framework.Session) {
 	// predicateFn is a callback that is called for each individual node to check
 	// if the node is a feasible candidate for the task.
+	cp.parseArguments()
 	predicateFn := func(task *api.TaskInfo, nodeInfo *api.NodeInfo) ([]*api.Status, error) {
+		taskQueue := ssn.Queues[ssn.Jobs[task.Job].Queue].Name
+		if _, found := cp.queueNames[taskQueue]; !found {
+			return []*api.Status{{
+				Code:   api.Success,
+				Reason: "",
+			}}, nil
+		}
 		currentCluster, found := nodeInfo.Node.GetLabels()[clusterLabelKey]
 		if !found {
 			return []*api.Status{{
@@ -103,5 +127,5 @@ func getRandomItem(items []string, seed string) string {
 	return items[hash%uint64(len(items))]
 }
 
-func (cp *ClustersPlugin) OnSessionClose(ssn *framework.Session) {
+func (cp *clustersPlugin) OnSessionClose(ssn *framework.Session) {
 }

@@ -14,7 +14,7 @@ basic:
 custom:
   metrics_enable: false
   admission_enable: true
-  admission_replicas: 1
+  admission_replicas: 4
   controller_enable: true
   controller_replicas: 1
   scheduler_enable: true
@@ -38,7 +38,26 @@ custom:
   admission_affinity: ~
   controller_affinity: ~
   scheduler_affinity: ~
-
+#   set {
+#     name  = "custom.default_tolerations[0].key"
+#     value = "CriticalAddonsOnly"
+#   }
+#   set {
+#     name  = "custom.default_tolerations[0].operator"
+#     value = "Exists"
+#   }
+#   set {
+#     name  = "custom.default_tolerations[0].effect"
+#     value = "NoSchedule"
+#   }
+#   set {
+#     name  = "custom.default_ns.node-role\\.kubernetes\\.io/group"
+#     value = "system"
+#   }
+#   set {
+#     name = "custom.admission_replicas"
+#     value = "4"
+#   }
 # Specify tolerations for all main Volcano components or per component
 # For example:
 #
@@ -46,7 +65,10 @@ custom:
 #  - key: "example-key1"
 #    operator: "Exists"
 #    effect: "NoSchedule"
-  default_tolerations: ~
+  default_tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+      effect: NoSchedule
   admission_tolerations: ~
   controller_tolerations: ~
   scheduler_tolerations: ~
@@ -67,7 +89,8 @@ custom:
 #
 #  default_ns:
 #    nodetype: criticalservices
-  default_ns: ~
+  default_ns: 
+    node-role.kubernetes.io/group: system
   admission_ns: ~
   scheduler_ns: ~
   controller_ns: ~
