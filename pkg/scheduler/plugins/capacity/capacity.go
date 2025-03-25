@@ -119,28 +119,16 @@ func (cp *capacityPlugin) OnSessionOpen(ssn *framework.Session) {
 		for _, reclaimee := range reclaimees {
 			job := ssn.Jobs[reclaimee.Job]
 			attr := cp.queueOpts[job.Queue]
-			
-			klog.V(3).Infof("Checking reclaimee task <%s/%s> from job <%s> in queue <%s>", 
-				reclaimee.Namespace, reclaimee.Name, job.Name, attr.name)
 
 			if _, found := allocations[job.Queue]; !found {
 				allocations[job.Queue] = attr.allocated.Clone()
-				klog.V(3).Infof("Created allocation entry for queue <%s> with initial allocation <%v>", 
-					attr.name, attr.allocated)
 			}
-			
 			allocated := allocations[job.Queue]
-			klog.V(3).Infof("Current allocation for queue <%s>: <%v>, reclaimer request: <%v>", 
-				attr.name, allocated, reclaimer.Resreq)
-				
-			if allocated.LessPartly(reclaimer.Resreq, api.Zero) {
-				klog.V(3).Infof("Failed to allocate resource for Task <%s/%s> in Queue <%s>, not enough resource.",
-					reclaimee.Namespace, reclaimee.Name, job.Queue)
-				continue
-			}
-			
-			klog.V(3).Infof("Queue <%s> allocated resource <%v>, deserved <%v>, guarantee <%v>, reclaimee resreq <%v>", 
-				attr.name, allocated, attr.deserved, attr.guarantee, reclaimee.Resreq)
+			// if allocated.LessPartly(reclaimer.Resreq, api.Zero) {
+			// 	klog.V(3).Infof("Failed to allocate resource for Task <%s/%s> in Queue <%s>, not enough resource.",
+			// 		reclaimee.Namespace, reclaimee.Name, job.Queue)
+			// 	continue
+			// }
 
 			exceptReclaimee := allocated.Clone().Sub(reclaimee.Resreq)
 			// When scalar resource not specified in deserved such as "pods", we should skip it and consider it as infinity,
