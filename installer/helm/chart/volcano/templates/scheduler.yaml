@@ -143,7 +143,7 @@ spec:
           - name: docker-secret
       containers:
         - name: {{ .Release.Name }}-scheduler
-          image: cr.ai.nebius.cloud/crnsdqo3qm2cr8mq23aq/vc-scheduler:{{.Values.basic.scheduler_image_tag_version}}
+          image: cr.eu-north1.nebius.cloud/e00e1t12ba6sp9r5xh/vc-scheduler:{{.Values.basic.scheduler_image_tag_version}}
           {{- if .Values.custom.scheduler_resources }}
           resources:
           {{- toYaml .Values.custom.scheduler_resources | nindent 12 }}
