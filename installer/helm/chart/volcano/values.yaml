@@ -90,7 +90,7 @@ custom:
 #  default_ns:
 #    nodetype: criticalservices
   default_ns: 
-    node-role.kubernetes.io/group: system
+    group: system
   admission_ns: ~
   scheduler_ns: ~
   controller_ns: ~
